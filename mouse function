@@ -1,0 +1,10 @@
+local Player = game.Players.LocalPlayer
+local Mouse = Player:GetMouse()
+
+
+local Event = game.ReplicatedStorage:WaitForChild("SpellEvent")
+script.Parent.Activated:Connect(function()
+	
+		Event:FireServer(script.Parent.Name, Mouse.Hit.Position)
+	
+	end)
