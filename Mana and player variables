@@ -1,0 +1,14 @@
+local Player = game.Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+
+local function updateManaLabel()
+	local currentMana = Character:GetAttribute("CurrentMana")
+	local maxMana = Character:GetAttribute("MaxMana")
+	
+	script.Parent.TextLabel.Text = "Mana: ".. currentMana.. "/"..maxMana
+end
+
+
+updateManaLabel()
+Character:GetAttributeChangedSignal("CurrentMana"):connect(updateManaLabel)
+Character:GetAttributeChangedSignal("MaxMana"):connect(updateManaLabel)
