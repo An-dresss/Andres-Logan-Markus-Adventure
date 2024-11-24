@@ -1,0 +1,40 @@
+-- Create a variable to store the player's mana
+local player = game.Players.LocalPlayer
+local mana = player:WaitForChild("Mana")
+
+-- Check if the player has a Mana value
+if not mana then
+	-- If not, create a new Mana value
+	mana = Instance.new("IntValue")
+	mana.Name = "Mana"
+	mana.Value = 0
+	mana.Parent = player
+end
+
+-- Create a function to recover mana
+local function recoverMana()
+	-- Check if the player's mana is less than 100
+	if mana.Value < 100 then
+		-- If so, increase the player's mana by 1
+		mana.Value = mana.Value + 1
+	end
+end
+
+-- Create a function to check if the player is using magic
+local function isUsingMagic()
+	-- For this example, we'll assume the player is using magic if they're holding down the left mouse button
+	-- You can replace this with your own logic to check if the player is using magic
+	return game:GetService("UserInputService"):IsMouseButtonPressed(Enum.UserInputType.Left)
+end
+
+-- Create a loop to recover mana every second
+while true do
+	-- Check if the player is using magic
+	if not isUsingMagic() then
+		-- If not, recover mana
+		recoverMana()
+	end
+	-- Wait 1 second before checking again
+	wait(1)
+end
+
