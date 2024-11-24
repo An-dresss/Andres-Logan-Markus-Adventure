@@ -1,0 +1,102 @@
+local Event= game.ReplicatedStorage.SpellEvent
+
+local SpellSettings = {
+	["Teleport"] = {
+		Cost = 10,
+		Cooldown = 5,
+	},
+	["Explosion"] = {
+		Cost = 10,
+		Cooldown = 3,
+		Damage = 50,
+		MaxKnockbackStrength = 100,
+		MinKnockbackStrength = 10,
+		KnockdownTime= 3
+	}, 
+	["Heal"] = {
+		Cost = 20,
+		Cooldown = 5,
+		Heal = 30
+	}
+}
+
+local function canCastSpell(Character, Spell)
+	local currentMana = Character:GetAttribute("CurrentMana")
+	local maxMana = Character:GetAttribute("MaxMana")
+
+	if currentMana >= SpellSettings[Spell].Cost then
+		return true
+	end
+
+	return false
+end
+
+local function Cooldown(Character, Spell)
+	Character:SetAttribute(Spell, true)
+	task.delay(SpellSettings[Spell].Cooldown, function()
+		Character:SetAttribute(Spell, nil)
+	end)
+end
+
+local function Teleport(Character, Mouse)
+	if canCastSpell(Character, "Teleport") == false then return end
+	if Character:GetAttribute("Teleport") == true then return end
+
+	Cooldown(Character, "Teleport")
+
+	if Character and Mouse then
+		Character:SetAttribute("CurrentMana", Character:GetAttribute("CurrentMana")- SpellSettings.Teleport.Cost)
+
+		Character:MoveTo(Mouse)
+	end
+end
+
+local function Explosion(Character, Mouse)
+	if canCastSpell(Character, "Explosion") == false then return end
+	if Character:GetAttribute("Explosion") == true then return end
+
+
+	local ExplosionEffect = Instance.new("Explosion")
+	ExplosionEffect.Position = Mouse
+	ExplosionEffect.BlastPressure = 0
+	ExplosionEffect.DestroyJointRadiusPercent = 0
+	ExplosionEffect.Parent = workspace
+
+	Character:SetAttribute("CurrentMana", Character:GetAttribute("CurrentMana")- SpellSettings.Explosion.Cost)
+
+	local MaxKnockback = SpellSettings.Explosion.MaxKnockbackStrength
+	local MinKnockback = SpellSettings.Explosion.MinKnockbackStrength
+
+	local Hits = {}
+	ExplosionEffect.Hit:Connect(function(Part)
+		local Humanoid = Part.Parent:FindFirstChildOfClass("Humanoid")
+
+		if Humanoid and Hits[Humanoid] == nil then
+			Humanoid.Parent.HumanoidRootPart:SetNetworkOwner(nil)
+			Hits[Humanoid] = true
+			Humanoid.PlatformStand = true
+			Humanoid.Parent.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(math.random(MinKnockback, MaxKnockback), math.random(MinKnockback, MaxKnockback), math.random(MinKnockback, MaxKnockback))
+			Humanoid:TakeDamage(10)
+
+			task.delay(SpellSettings.Explosion.KnockdownTime, function()
+				Humanoid.Parent.HumanoidRootPart:SetNetworkOwner(game.Players:GetPlayerFromCharacter(Character))
+				Humanoid.PlatformStand = false
+			end)
+		end
+	end)
+end
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SpellEvent = ReplicatedStorage:WaitForChild("SpellEvent")
+
+
+
+Event.OnServerEvent:Connect(function(Player, Spell, Mouse)
+	if Spell == "Teleport" then
+		Teleport(Player.Character, Mouse)
+	end
+
+	if Spell == "Explosion" then 
+		Explosion(Player.Character, Mouse)
+	end
+end)
