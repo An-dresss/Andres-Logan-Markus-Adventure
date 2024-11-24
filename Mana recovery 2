@@ -1,0 +1,38 @@
+local Player = game.Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+
+local Mouse = Player:GetMouse()
+
+
+local isMouseDown = false
+local lastDown = nil
+
+Mouse.Button1Down:Connect(function()
+	isMouseDown = true
+	lastDown = tick()
+end)
+
+Mouse.Button1Up:Connect(function()
+	isMouseDown = false
+end)
+
+local function isUsingMagic()
+	-- For this example, we'll assume the player is using magic if they're holding down the left mouse button
+	-- You can replace this with your own logic to check if the player is using magic
+	return isMouseDown
+end
+
+while true do
+	local currentMana = Character:GetAttribute("CurrentMana")
+	local maxMana = Character:GetAttribute("MaxMana")
+
+
+	if currentMana < maxMana and tick() - lastDown > 3 then
+		print("I am adding mana!")
+		Character:SetAttribute("CurrentMana", currentMana + 2)
+	end
+
+	task.wait(1)
+end
+
+
