@@ -1,0 +1,10 @@
+local Players = game:GetService("Players")
+
+
+Players.PlayerAdded:Connect(function(Player)
+	Player.CharacterAdded:Connect(function(Character)
+		Character:SetAttribute("CurrentMana", 220)
+		Character:SetAttribute("MaxMana", 220)
+	end)
+	
+end)
